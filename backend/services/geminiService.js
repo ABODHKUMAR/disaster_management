@@ -1,12 +1,18 @@
 // groqService.js (Renamed from geminiService.js to reflect the change)
+const fetch = require("node-fetch");
 const Groq = require('groq-sdk'); // Import the Groq SDK
+
+const { GoogleGenAI } = require("@google/genai");
+
+
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
 // Initialize the Groq client with your API key
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY, // Make sure you set GROQ_API_KEY in your .env file
 });
 
-async function extractLocationFromText(text) {
+exports.extractLocationFromText = async (text) => {
   try {
     // Choose a Groq model. 'llama3-8b-8192' or 'llama3-70b-8192' are good choices.
     // 'mixtral-8x7b-32768' is also excellent for various tasks.
@@ -29,9 +35,7 @@ async function extractLocationFromText(text) {
     const chatCompletion = await groq.chat.completions.create({
       messages: messages,
       model: model,
-      stream: true, // Enable streaming for real-time chunks
-      // Groq doesn't have a direct equivalent to `thinkingConfig` or `responseMimeType`
-      // like Gemini does in this way. You control output format via prompting.
+      stream: true, 
     });
 
     let result = '';
@@ -49,16 +53,44 @@ async function extractLocationFromText(text) {
   }
 }
 
-// The verifyImage function cannot be directly translated to Groq as Groq
-// primarily focuses on text-based LLMs and does not currently offer
-// direct image analysis capabilities like Gemini's multimodal models.
-// If you need image analysis, you would still need to use a separate service
-// (like Google's Gemini Vision models, or other dedicated image analysis APIs).
-async function verifyImage(imageUrl) {
-  // This function would remain separate or be implemented using a different service
-  // if image analysis is still required.
-  console.warn("Groq API does not directly support image analysis. This function requires a different service.");
-  throw new Error("Image verification is not supported by Groq API.");
+
+
+// Convert remote image URL to base64
+async function getImageAsBase64(imageUrl) {
+  const response = await fetch(imageUrl);
+  if (!response.ok) throw new Error("Failed to fetch image from URL");
+  const buffer = await response.arrayBuffer();
+  return Buffer.from(buffer).toString("base64");
 }
 
-module.exports = { extractLocationFromText, verifyImage };
+// Main function to verify image
+exports.verifyImageWithGemini = async (imageUrl) => {
+  try {
+    const base64Image = await getImageAsBase64(imageUrl);
+
+    const contents = [
+      {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: base64Image,
+        },
+      },
+      {
+        text: "Analyze this image for signs of disaster or manipulation. Return a brief caption or warning if it's fake.",
+      },
+    ];
+
+    const response = await ai.models.generateContent({
+      model: "gemini-1.5-flash", 
+      contents,
+    });
+    const text = response.candidates?.[0]?.content?.parts?.[0]?.text || "No response text found";
+
+    return { success: true, analysis: text };
+  } catch (error) {
+    console.error("Error verifying image:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+

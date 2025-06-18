@@ -22,7 +22,7 @@ async function getNearbyResources(lat, lon, radius = 10000) {
     longitude: lon,
     radius_meters: radius
   });
-
+ 
   if (error) throw error;
   return data;
 }
