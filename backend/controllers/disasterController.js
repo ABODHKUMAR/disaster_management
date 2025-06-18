@@ -110,10 +110,81 @@ exports.getDisasterSocialMedia = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const posts = await fetchSocialMediaPosts(id);
+
+    const { data: disaster, error } = await supabase
+      .from('disasters')
+      .select('title, tags')
+      .eq('id', id)
+      .single();
+
+    if (error || !disaster) {
+      return res.status(404).json({ error: 'Disaster not found' });
+    }
+
+    const keywords = disaster.tags?.join(' ') || disaster.title;
+
+    const posts = await fetchSocialMediaPosts(keywords);
+
     res.status(200).json(posts);
   } catch (error) {
     console.error(`Error fetching social media for disaster ${id}:`, error);
     res.status(500).json({ error: 'Failed to fetch social media posts' });
   }
 };
+
+
+const { fetchNearbyResources } = require('../services/supabaseService');
+
+exports.getDisasterResources = async (req, res) => {
+  const { id } = req.params;
+  const { lat, lon } = req.query;
+
+  if (!lat || !lon) {
+    return res.status(400).json({ error: 'Latitude and longitude are required' });
+  }
+
+  try {
+    const resources = await fetchNearbyResources(lat, lon);
+    res.status(200).json(resources);
+  } catch (error) {
+    console.error(`Error fetching resources for disaster ${id}:`, error);
+    res.status(500).json({ error: 'Failed to fetch nearby resources' });
+  }
+};
+
+
+const { getDisasterUpdates } = require('../services/cacheService');
+
+exports.getOfficialDisasterUpdates = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updates = await getDisasterUpdates(id);
+    res.status(200).json(updates);
+  } catch (error) {
+    console.error(`Error fetching official updates for disaster ${id}:`, error);
+    res.status(500).json({ error: 'Failed to fetch official updates' });
+  }
+};
+
+
+const { verifyImageWithGemini } = require('../services/geminiService');
+
+exports.verifyDisasterImage = async (req, res) => {
+  const { id } = req.params;
+  const { imageUrl } = req.body;
+
+  if (!imageUrl) {
+    return res.status(400).json({ error: 'Image URL is required' });
+  }
+
+  try {
+    const result = await verifyImageWithGemini(imageUrl);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(`Error verifying image for disaster ${id}:`, error);
+    res.status(500).json({ error: 'Failed to verify image' });
+  }
+};
+
+
