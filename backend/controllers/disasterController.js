@@ -1,22 +1,56 @@
 const { supabase } = require("../supabase/supabaseClient");
 const { emitDisasterUpdate } = require("../utils/websocket");
+const { extractLocationFromText } = require("../services/geminiService");
+const { geocodeLocation } = require("../services/openStreetMapService");
+const { fetchSocialMediaPosts } = require("../services/socialMediaService");
 
 exports.createDisaster = async (req, res) => {
   try {
     const { title, location_name, description, tags, owner_id } = req.body;
-    const { data, error } = await supabase
-      .from("disasters")
-      .insert({ title, location_name, description, tags, owner_id })
-      .select();
+
+    // Step 1: Use Gemini to extract location from description
+    const extractedLocation = await extractLocationFromText(description); // e.g., "Kolkata, India"
+
+    // Step 2: Convert extracted location to coordinates
+    const { lat, lon } = await geocodeLocation(extractedLocation || location_name || "");
+
+    // Fallback if geocoding fails
+    const geographyPoint = lat && lon ? `POINT(${lon} ${lat})` : null;
+
+    // Step 3: Construct disaster payload
+    const payload = {
+      title,
+      location_name: extractedLocation || location_name,
+      location: geographyPoint, // GEOGRAPHY column
+      description,
+      tags,
+      owner_id,
+      created_at: new Date().toISOString(),
+      audit_trail: [
+        {
+          action: "create",
+          user_id: owner_id,
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    };
+
+    // Step 4: Insert into Supabase
+    const { data, error } = await supabase.from("disasters").insert(payload).select();
 
     if (error) throw error;
 
+    // Step 5: Emit WebSocket update
     emitDisasterUpdate("created", data[0]);
+
+    // Step 6: Respond to client
     res.status(201).json(data[0]);
   } catch (err) {
+    console.error("Create disaster failed:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.getDisasters = async (req, res) => {
   try {
@@ -68,5 +102,18 @@ exports.deleteDisaster = async (req, res) => {
     res.status(200).json({ message: "Disaster deleted", id });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+
+exports.getDisasterSocialMedia = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const posts = await fetchSocialMediaPosts(id);
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error(`Error fetching social media for disaster ${id}:`, error);
+    res.status(500).json({ error: 'Failed to fetch social media posts' });
   }
 };

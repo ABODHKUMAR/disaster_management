@@ -10,10 +10,10 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Test connection by fetching from a table (replace 'your_table' with an actual table name)
+
 async function testConnection() {
   try {
-    const { data, error } = await supabase.from('your_table').select().limit(1);
+    const { data, error } = await supabase.from('disasters').select().limit(1);
     if (error) {
       console.log('Supabase connection failed:', error.message);
     } else {
