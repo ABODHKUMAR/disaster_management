@@ -8,7 +8,8 @@ const {
   getDisasterSocialMedia,
   verifyDisasterImage,
   getDisasterResources
-  , getDisasterOfficialUpdates
+  , getDisasterOfficialUpdates,
+  Reports
 } = require("../controllers/disasterController");
 
 router.post("/", createDisaster);
@@ -26,4 +27,6 @@ router.get('/:id/resources', getDisasterResources)
 router.post('/:id/verify-image', verifyDisasterImage);
 
 router.get('/:id/official-updates', getDisasterOfficialUpdates);
+
+router.get('/:id/reports', Reports);
 module.exports = router;

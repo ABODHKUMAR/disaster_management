@@ -1,7 +1,8 @@
-// ✅ FILE: disasterFormSlice.ts
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { RootState } from '@/app/store';
+
+// 2. disasterFormSlice.ts
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
+import { RootState } from "@/app/store";
 
 interface AuditEntry {
   action: string;
@@ -24,15 +25,15 @@ interface DisasterFormState {
 }
 
 const initialState: DisasterFormState = {
-  title: '',
-  locationName: '',
-  description: '',
+  title: "",
+  locationName: "",
+  description: "",
   tags: [],
-  priority: 'medium',
-  location: '',
-  owner_id: 'netrunnerX',
+  priority: "medium",
+  location: "",
+  owner_id: "netrunnerX",
   audit_trail: [],
-  currentTag: '',
+  currentTag: "",
   loading: false,
   error: null,
 };
@@ -41,7 +42,7 @@ export const createDisaster = createAsyncThunk<
   any,
   void,
   { state: RootState; rejectValue: string }
->('disasterForm/createDisaster', async (_, thunkAPI) => {
+>("disasterForm/createDisaster", async (_, thunkAPI) => {
   try {
     const state = thunkAPI.getState().disasterForm;
     const now = new Date().toISOString();
@@ -50,22 +51,23 @@ export const createDisaster = createAsyncThunk<
       id: crypto.randomUUID(),
       title: state.title,
       location_name: state.locationName,
-      location: state.location || 'POINT(0 0)',
+      location: state.location || "POINT(0 0)",
       description: state.description,
       tags: state.tags,
       owner_id: state.owner_id,
       created_at: now,
       audit_trail: [
         {
-          action: 'create',
+          action: "create",
           user_id: state.owner_id,
           timestamp: now,
         },
       ],
       priority: state.priority,
+      
     };
 
-    const res = await axios.post('http://localhost:8000/api/disasters', payload);
+    const res = await axios.post("http://localhost:8000/api/disasters", payload);
     return res.data;
   } catch (err: any) {
     return thunkAPI.rejectWithValue(err.response?.data?.error || err.message);
@@ -73,14 +75,11 @@ export const createDisaster = createAsyncThunk<
 });
 
 const disasterFormSlice = createSlice({
-  name: 'disasterForm',
+  name: "disasterForm",
   initialState,
   reducers: {
     updateField: (state, action: PayloadAction<{ field: string; value: any }>) => {
       (state as any)[action.payload.field] = action.payload.value;
-    },
-    setCurrentTag: (state, action: PayloadAction<string>) => {
-      state.currentTag = action.payload;
     },
     addTag: (state, action: PayloadAction<string>) => {
       const tag = action.payload.trim();
@@ -90,6 +89,9 @@ const disasterFormSlice = createSlice({
     },
     removeTag: (state, action: PayloadAction<string>) => {
       state.tags = state.tags.filter((tag) => tag !== action.payload);
+    },
+    setCurrentTag: (state, action: PayloadAction<string>) => {
+      state.currentTag = action.payload;
     },
     resetForm: () => initialState,
   },
@@ -104,7 +106,7 @@ const disasterFormSlice = createSlice({
       })
       .addCase(createDisaster.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to create disaster';
+        state.error = action.payload || "Failed to create disaster";
       });
   },
 });

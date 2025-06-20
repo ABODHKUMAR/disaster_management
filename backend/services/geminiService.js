@@ -4,7 +4,6 @@ const Groq = require('groq-sdk'); // Import the Groq SDK
 
 const { GoogleGenAI } = require("@google/genai");
 
-
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
 // Initialize the Groq client with your API key
@@ -63,34 +62,36 @@ async function getImageAsBase64(imageUrl) {
   return Buffer.from(buffer).toString("base64");
 }
 
-// Main function to verify image
-exports.verifyImageWithGemini = async (imageUrl) => {
+
+
+
+exports.verifyDisasterImageService = async (imageUrl) => {
   try {
-    const base64Image = await getImageAsBase64(imageUrl);
+    const response = await fetch(imageUrl);
+    const arrayBuffer = await response.arrayBuffer();
+    const base64Image = Buffer.from(arrayBuffer).toString("base64");
 
-    const contents = [
-      {
-        inlineData: {
-          mimeType: "image/jpeg",
-          data: base64Image,
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+        {
+          inlineData: {
+            mimeType: "image/jpeg",
+            data: base64Image,
+          },
         },
-      },
-      {
-        text: "Analyze this image for signs of disaster or manipulation. Return a brief caption or warning if it's fake.",
-      },
-    ];
-
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash", 
-      contents,
+        {
+          text: "Analyze this image for signs of disaster or manipulation. Return a brief caption or warning if it's fake.",
+        },
+      ],
     });
-    const text = response.candidates?.[0]?.content?.parts?.[0]?.text || "No response text found";
+
+    const text = result.text || "No response text found";
+
 
     return { success: true, analysis: text };
   } catch (error) {
     console.error("Error verifying image:", error);
     return { success: false, error: error.message };
   }
-}
-
-
+};

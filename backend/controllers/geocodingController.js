@@ -25,3 +25,18 @@ exports.createGeocoding = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.createGeocodingLocation = async (req, res) => {
+  try {
+    const {  description } = req.body;
+
+    const extractedLocation = await extractLocationFromText(description);
+    return res.status(200).json({
+      extractedLocation
+    });
+  } catch (err) {
+    console.error("Create geocoding location failed:", err);
+
+    res.status(500).json({ error: err.message });
+  }
+};

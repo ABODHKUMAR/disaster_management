@@ -1,10 +1,10 @@
 const axios = require("axios");
-// const { getCachedValue, setCachedValue } = require("./cacheService");
+const { getCachedValue, setCachedValue } = require("./cacheService");
 
 async function geocodeLocation(locationName) {
-  // const cacheKey = `nominatim:${locationName}`;
-  // const cached = await getCachedValue(cacheKey);
-  // if (cached) return cached;
+  const cacheKey = `nominatim:${locationName}`;
+  const cached = await getCachedValue(cacheKey);
+  if (cached) return cached;
 
   const response = await axios.get("https://nominatim.openstreetmap.org/search", {
     params: {
@@ -26,7 +26,7 @@ async function geocodeLocation(locationName) {
     lon: feature.geometry.coordinates[0],
   };
 
-  // await setCachedValue(cacheKey, result);
+  await setCachedValue(cacheKey, result);
   return result;
 }
 
