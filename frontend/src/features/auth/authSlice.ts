@@ -3,7 +3,8 @@ import axios from "axios";
 
 interface UserState {
   username: string | null;
-  role: "admin" | "contributor" | null;
+  role: "admin" | "user" | null;
+  token: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -11,6 +12,7 @@ interface UserState {
 const initialState: UserState = {
   username: null,
   role: null,
+  token: null,
   loading: false,
   error: null,
 };
@@ -42,6 +44,7 @@ const userSlice = createSlice({
     logout: (state) => {
       state.username = null;
       state.role = null;
+      state.token = null;
       state.loading = false;
       state.error = null;
     },
@@ -55,6 +58,7 @@ const userSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.username = action.payload.user.username;
+        state.token = action.payload.token;
         state.role = action.payload.user.role;
         state.error = null;
       })

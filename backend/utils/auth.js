@@ -1,4 +1,3 @@
-// utils/auth.js
 const bcrypt = require("bcryptjs");
 
 const users = {

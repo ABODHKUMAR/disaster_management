@@ -23,6 +23,8 @@ async function getNearbyResources(lat, lon, radius = 10000) {
     radius_meters: radius
   });
  
+  console.log("Nearby resources data:", data);
+  console.log("Nearby resources error:", error);
   if (error) throw error;
   return data;
 }

@@ -47,14 +47,6 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Live
-              </Badge>
-              <Button variant="outline" size="sm">
-                <Bell className="h-4 w-4 mr-1" />
-                Alerts ({realtimeUpdates})
-              </Button>
               {username ? (
                   <div className="flex items-center space-x-2 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 cursor-pointer">
                     <UserCircle className="h-6 w-6 text-slate-700" />
