@@ -25,7 +25,7 @@ export const loginUser = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axios.post("https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/auth/login", {
+      const response = await axios.post("https://disaster-management-k7ux.vercel.app/api/auth/login", {
         username,
         password,
       });

@@ -42,8 +42,8 @@ const SocialMediaMonitor = () => {
 
       try {
         const [officialRes, socialRes] = await Promise.all([
-          fetch(`https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${selectedDisasterId}/official-updates`),
-          fetch(`https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${selectedDisasterId}/social-media/`)
+          fetch(`https://disaster-management-k7ux.vercel.app/api/disasters/${selectedDisasterId}/official-updates`),
+          fetch(`https://disaster-management-k7ux.vercel.app/api/disasters/${selectedDisasterId}/social-media/`)
         ]);
 
         if (!officialRes.ok || !socialRes.ok) {

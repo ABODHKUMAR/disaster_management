@@ -59,7 +59,7 @@
 //   const fetchReports = async () => {
 //     try {
 //       const res = await axios.get(
-//         `https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${hardcodedDisasterIds[0]}/reports/`
+//         `https://disaster-management-k7ux.vercel.app/api/disasters/${hardcodedDisasterIds[0]}/reports/`
 //       );
 //       const data = Array.isArray(res.data) ? res.data : [];
 //       setReports(data);
@@ -86,7 +86,7 @@
 //     try {
 //       setIsAnalyzing(true);
 //       const res = await axios.post(
-//         `https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${hardcodedDisasterIds[0]}/verify-image/`,
+//         `https://disaster-management-k7ux.vercel.app/api/disasters/${hardcodedDisasterIds[0]}/verify-image/`,
 //         { imageUrl: url }
 //       );
 //       setAnalysisResult(res.data);
@@ -273,7 +273,7 @@ const ImageVerification = () => {
     if (!selectedDisasterId) return;
     try {
       const res = await axios.get(
-        `https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${selectedDisasterId}/reports/`
+        `https://disaster-management-k7ux.vercel.app/api/disasters/${selectedDisasterId}/reports/`
       );
       const data = Array.isArray(res.data) ? res.data : [];
       setReports(data);
@@ -300,7 +300,7 @@ const ImageVerification = () => {
     try {
       setIsAnalyzing(true);
       const res = await axios.post(
-        `https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${selectedDisasterId}/verify-image/`,
+        `https://disaster-management-k7ux.vercel.app/api/disasters/${selectedDisasterId}/verify-image/`,
         { imageUrl: url }
       );
       setAnalysisResult(res.data);
