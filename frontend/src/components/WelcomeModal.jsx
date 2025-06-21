@@ -59,7 +59,7 @@ const WelcomeModal = () => {
               </li>
               <li>
                 <a
-                  href="https://www.youtube.com/"
+                  href="https://youtu.be/CDYmweLQcxU"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"

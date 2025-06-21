@@ -50,7 +50,7 @@ const ResourceMapper = () => {
         const lat = 28.6139;
         const lon = 77.2090;
         const response = await fetch(
-          `http://localhost:8000/api/disasters/${selectedDisasterId}/resources?lat=${lat}&lon=${lon}`
+          `https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${selectedDisasterId}/resources?lat=${lat}&lon=${lon}`
         );
 
         if (!response.ok) {

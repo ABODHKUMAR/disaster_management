@@ -67,7 +67,7 @@ export const createDisaster = createAsyncThunk<
       priority: disasterForm.priority,
     };
 
-    const res = await axios.post("http://localhost:8000/api/disasters", payload, {
+    const res = await axios.post("https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters", payload, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

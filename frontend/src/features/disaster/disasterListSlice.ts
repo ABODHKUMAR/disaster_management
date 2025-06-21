@@ -47,7 +47,7 @@ export const fetchDisasters = createAsyncThunk<
   { rejectValue: string }
 >("disasterList/fetchDisasters", async (_, thunkAPI) => {
   try {
-    const response = await axios.get("http://localhost:8000/api/disasters");
+    const response = await axios.get("https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters");
     return response.data;
   } catch (err: any) {
     return thunkAPI.rejectWithValue(err.response?.data?.error || err.message);
@@ -63,7 +63,7 @@ export const updateDisaster = createAsyncThunk<
 
   try {
     const res = await axios.put(
-      `http://localhost:8000/api/disasters/${id}`,
+      `https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${id}`,
       data,
       {
         headers: {
@@ -85,7 +85,7 @@ export const deleteDisaster = createAsyncThunk<
   const token = thunkAPI.getState().auth.token;
 
   try {
-    await axios.delete(`http://localhost:8000/api/disasters/${id}`, {
+    await axios.delete(`https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
