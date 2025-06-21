@@ -16,6 +16,7 @@ import SocialMediaMonitor from "@/components/SocialMediaMonitor";
 import ResourceMapper from "@/components/ResourceMapper";
 import ImageVerification from "@/components/ImageVerification";
 import LocationExtractor from "@/components/LocationExtractor";
+import WelcomeModal from "@/components/WelcomeModal";
 import { UserCircle, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "@/app/store";
@@ -33,6 +34,7 @@ const Index = () => {
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50">
+      <WelcomeModal />
       {/* Header */}
       <header className="bg-white border-b border-slate-200 shadow-sm">
         <div className="container mx-auto px-6 py-4">
