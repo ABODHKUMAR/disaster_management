@@ -4,7 +4,7 @@ A full-stack web application designed to help coordinate disaster response effor
 
 ## 🔗 Live Demo
 
-- **Live URL**: [https://disaster-management-8mpx-ib8pg1bd8-abodhkumars-projects.vercel.app/](https://disaster-management-8mpx-ib8pg1bd8-abodhkumars-projects.vercel.app/)
+- **Live URL**: https://disaster-management-8mpx.vercel.app/
 - **YouTube Demo**: [https://youtu.be/CDYmweLQcxU](https://youtu.be/CDYmweLQcxU)
 - **GitHub Repository**: [https://github.com/ABODHKUMAR/disaster_management](https://github.com/ABODHKUMAR/disaster_management)
 
