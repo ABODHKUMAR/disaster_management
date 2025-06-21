@@ -2,17 +2,26 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Users, Shield, Search, Plus } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 const ResourceMapper = () => {
-  const disasters = useSelector((state: RootState) => state.disasterList.disasters);
+  const disasters = useSelector((state: RootState) => state.disasterList?.disasters || []);
 
   const [selectedDisasterId, setSelectedDisasterId] = useState<string | null>(null);
   const [resourceType, setResourceType] = useState("all");
@@ -20,27 +29,46 @@ const ResourceMapper = () => {
   const [resources, setResources] = useState<any[]>([]);
   const [radius, setRadius] = useState("10");
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Set default selected disaster
   useEffect(() => {
     if (disasters.length > 0 && !selectedDisasterId) {
-      setSelectedDisasterId(disasters[0].id);
+      setSelectedDisasterId(disasters[0]?.id ?? null);
     }
   }, [disasters]);
 
+  // Fetch resources when selected disaster changes
   useEffect(() => {
     const fetchResources = async () => {
       if (!selectedDisasterId) return;
-      const lat = 28.6139; // Delhi default, you can extract actual if needed
-      const lon = 77.2090;
 
+      setLoading(true);
+      setError(null);
       try {
+        const lat = 28.6139;
+        const lon = 77.2090;
         const response = await fetch(
-          `http://localhost:8000/api/disasters/${selectedDisasterId}/resources?lat=${lat}&lon=${lon}`
+          `https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/disasters/${selectedDisasterId}/resources?lat=${lat}&lon=${lon}`
         );
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
         const data = await response.json();
+        if (!Array.isArray(data)) {
+          throw new Error("Unexpected API response format.");
+        }
+
         setResources(data);
-      } catch (error) {
-        console.error("Error fetching resources:", error);
+      } catch (err: any) {
+        console.error("Error fetching resources:", err);
+        setError("Failed to load resources. Please try again.");
+        setResources([]); // fallback to empty
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -49,19 +77,26 @@ const ResourceMapper = () => {
 
   const getResourceIcon = (type: string) => {
     switch (type) {
-      case "shelter": return "🏠";
-      case "medical": return "🏥";
-      case "food": return "🍽️";
-      case "supplies": return "📦";
-      case "evacuation": return "🚌";
-      default: return "📍";
+      case "shelter":
+        return "🏠";
+      case "medical":
+        return "🏥";
+      case "food":
+        return "🍽️";
+      case "supplies":
+        return "📦";
+      case "evacuation":
+        return "🚌";
+      default:
+        return "📍";
     }
   };
 
-  const filteredResources = resources.filter(resource => {
-    const matchesLocation = !searchLocation || 
-      resource.location_name.toLowerCase().includes(searchLocation.toLowerCase());
-    const matchesType = resourceType === "all" || resource.type === resourceType;
+  const filteredResources = resources.filter((resource) => {
+    const matchesLocation =
+      !searchLocation ||
+      resource?.location_name?.toLowerCase().includes(searchLocation.toLowerCase());
+    const matchesType = resourceType === "all" || resource?.type === resourceType;
     return matchesLocation && matchesType;
   });
 
@@ -78,7 +113,11 @@ const ResourceMapper = () => {
 
         {/* Controls */}
         <div className="flex gap-4 mt-4 flex-wrap">
-          <Select value={selectedDisasterId ?? ""} onValueChange={setSelectedDisasterId}>
+          <Select
+            value={selectedDisasterId ?? ""}
+            onValueChange={setSelectedDisasterId}
+            disabled={disasters.length === 0}
+          >
             <SelectTrigger className="min-w-[240px]">
               <SelectValue placeholder="Select Disaster" />
             </SelectTrigger>
@@ -115,8 +154,19 @@ const ResourceMapper = () => {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {filteredResources.map((r) => (
-          <div key={r.id} className="border border-slate-200 rounded-lg p-4 space-y-2">
+        {loading && (
+          <div className="text-center text-slate-500 py-6">Loading resources...</div>
+        )}
+
+        {error && (
+          <div className="text-center text-red-500 py-6">{error}</div>
+        )}
+
+        {!loading && !error && filteredResources.length > 0 && filteredResources.map((r) => (
+          <div
+            key={r.id}
+            className="border border-slate-200 rounded-lg p-4 space-y-2"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{getResourceIcon(r.type)}</span>
@@ -127,11 +177,13 @@ const ResourceMapper = () => {
               </div>
               <Badge variant="outline">{r.type}</Badge>
             </div>
-            <p className="text-sm text-slate-500">Created: {new Date(r.created_at).toLocaleString()}</p>
+            <p className="text-sm text-slate-500">
+              Created: {new Date(r.created_at).toLocaleString()}
+            </p>
           </div>
         ))}
 
-        {filteredResources.length === 0 && (
+        {!loading && !error && filteredResources.length === 0 && (
           <div className="text-center py-10 text-slate-500">
             <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No resources found for this disaster.</p>

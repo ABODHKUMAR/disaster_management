@@ -28,7 +28,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
 import {
   fetchDisasters,
-  removeDisaster,
+  deleteDisaster,
+  // removeDisaster,
   updateDisaster,
 } from "@/features/disaster/disasterListSlice";
 
@@ -50,12 +51,9 @@ const DisasterList = ({ setActiveDisaster }) => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this disaster?")) {
-      await fetch(`http://localhost:8000/api/disasters/${id}`, {
-        method: "DELETE",
-      });
-      dispatch(removeDisaster(id));
-    }
+
+      dispatch(deleteDisaster(id));
+    
   };
 
   const filteredDisasters = disasters.filter((disaster) => {

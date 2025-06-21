@@ -11,14 +11,15 @@ const {
   , getDisasterOfficialUpdates,
   Reports
 } = require("../controllers/disasterController");
+const {authenticateToken, authorizeRoles } = require("./../middleware/authMiddleware");
 
-router.post("/", createDisaster);
+router.post("/", authenticateToken, authorizeRoles("admin"), createDisaster);
 
 router.get("/", getDisasters);
 
-router.put("/:id", updateDisaster);
+router.put("/:id", authenticateToken, authorizeRoles("admin"), updateDisaster);
 
-router.delete("/:id", deleteDisaster);
+router.delete("/:id", authenticateToken, authorizeRoles("admin"), deleteDisaster);
 
 router.get('/:id/social-media', getDisasterSocialMedia);
 

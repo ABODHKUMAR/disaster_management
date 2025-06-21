@@ -34,7 +34,7 @@ const LocationExtractor = () => {
     setExtractionResponse(null);
 
     try {
-      const res = await fetch("http://localhost:8000/api/geocode_location/location", {
+      const res = await fetch("https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/geocode_location/location", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description })
@@ -73,7 +73,7 @@ const LocationExtractor = () => {
     setGeocodingResponse(null);
 
     try {
-      const res = await fetch("http://localhost:8000/api/geocode/", {
+      const res = await fetch("https://disaster-management-m7ghdiwwi-abodhkumars-projects.vercel.app//api/geocode/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description: manualLocation })

@@ -1,5 +1,5 @@
 const { supabase } = require("../supabase/supabaseClient");
-const { emitResourcesUpdate } = require("../utils/websocket");
+const { emitDisasterUpdate , emitResourcesUpdate} = require("../utils/websocket");
 const { extractLocationFromText } = require("../services/geminiService");
 const { geocodeLocation } = require("../services/openStreetMapService");
 const { fetchPostsByTags } = require("../services/socialMediaService");
@@ -9,6 +9,7 @@ const { getCachedValue, setCachedValue } = require("../services/cacheService");
 const axios = require('axios');
 const cheerio = require('cheerio');
 const crypto = require("crypto");
+
 
 exports.createDisaster = async (req, res) => {
   try {
@@ -55,7 +56,6 @@ exports.createDisaster = async (req, res) => {
   }
 };
 
-
 exports.getDisasters = async (req, res) => {
   try {
     const { tag } = req.query;
@@ -64,22 +64,6 @@ exports.getDisasters = async (req, res) => {
 
     const { data, error } = await query;
     if (error) throw error;
-
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-exports.Reports = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { data, error } = await supabase
-      .from("reports")
-      .select("*")
-      .eq("disaster_id", id);
-    if (error) throw error;
-    console.log("Reports for disaster:", id, data);
 
     res.status(200).json(data);
   } catch (err) {
@@ -137,13 +121,26 @@ exports.deleteDisaster = async (req, res) => {
   }
 };
 
+exports.Reports = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await supabase
+      .from("reports")
+      .select("*")
+      .eq("disaster_id", id);
+    if (error) throw error;
+    console.log("Reports for disaster:", id, data);
 
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 exports.getDisasterSocialMedia = async (req, res) => {
   const { id } = req.params;
   const cacheKey = `social_media:${id}`;
 
   try {
-    // Check cache first
     const cachedPosts = await getCachedValue(cacheKey);
     if (cachedPosts) {
       console.log(`Cache hit for disaster ${id}`);
@@ -163,10 +160,6 @@ exports.getDisasterSocialMedia = async (req, res) => {
     const keywords = disaster.tags?.join(" ") || disaster.title;
     console.log(`Fetching social media posts for keywords: ${keywords}`);
     const posts = await fetchPostsByTags(keywords);
-    if (!posts || posts.length === 0) {
-      return res.status(404).json({ error: "No social media posts found" });
-    }
-    // Cache the posts for 1 hour
     await setCachedValue(cacheKey, JSON.stringify(posts), 3600);
     res.status(200).json(posts);
   } catch (error) {
@@ -190,8 +183,15 @@ exports.getDisasterResources = async (req, res) => {
     if (cached) {
       return res.status(200).json(cached);
     }
-
+    // do resource fetching
+    console.log(`Fetching resources for disaster ${id} at lat: ${lat}, lon: ${lon}`); 
     const resources = await getNearbyResources(lat, lon);
+    if (!resources || resources.length === 0) {
+      console.log(`No resources found for disaster ${id} at lat: ${lat}, lon: ${lon}`);
+      return res.status(404).json({ error: "No resources found" });
+    }
+    
+
 
     await setCachedValue(cacheKey, resources);
     emitResourcesUpdate(id, resources);
@@ -200,20 +200,6 @@ exports.getDisasterResources = async (req, res) => {
   } catch (error) {
     console.error(`Error fetching resources for disaster ${id}:`, error);
     res.status(500).json({ error: "Failed to fetch nearby resources" });
-  }
-};
-
-
-
-exports.getOfficialDisasterUpdates = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const updates = await getDisasterUpdates(id);
-    res.status(200).json(updates);
-  } catch (error) {
-    console.error(`Error fetching official updates for disaster ${id}:`, error);
-    res.status(500).json({ error: "Failed to fetch official updates" });
   }
 };
 
@@ -240,6 +226,7 @@ exports.verifyDisasterImage = async (req, res) => {
     res.status(500).json({ error: "Failed to verify image" });
   }
 };
+
 
 exports.getDisasterOfficialUpdates = async (req, res) => {
   const { id } = req.params;
@@ -268,8 +255,33 @@ exports.getDisasterOfficialUpdates = async (req, res) => {
       });
     });
 
-    await setCachedValue(cacheKey, news);
-    return res.status(200).json(news);
+    const { data: disaster, error } = await supabase
+      .from("disasters")
+      .select("title, tags")
+      .eq("id", id)
+      .single();
+
+    if (error || !disaster) {
+      return res.status(404).json({ error: "Disaster not found" });
+    }
+
+    const keywords = disaster.tags?.join(" ") || disaster.title;
+    const filteredNews = news.filter(item =>
+      item.title.toLowerCase().includes(keywords.toLowerCase())
+    );
+
+    //if filter news is empty, then randomly select 5 news from the original list
+    if (filteredNews.length === 0) {
+      console.log(`No news found for keywords: ${keywords}. Selecting random news.`);
+      const shuffled = news.sort(() => 0.5 - Math.random());
+      filteredNews.push(...shuffled.slice(0, 5));
+    }
+    if (filteredNews.length === 0) {
+      filteredNews.push(...news.slice(0, 5));
+    }
+
+    // await setCachedValue(cacheKey, filteredNews);
+    return res.status(200).json(filteredNews);
   } catch (error) {
     console.error("Error scraping Indian Red Cross:", error.message);
     return res.status(500).json({ error: "Failed to fetch updates" });

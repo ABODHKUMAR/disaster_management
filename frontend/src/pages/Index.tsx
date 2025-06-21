@@ -16,6 +16,7 @@ import SocialMediaMonitor from "@/components/SocialMediaMonitor";
 import ResourceMapper from "@/components/ResourceMapper";
 import ImageVerification from "@/components/ImageVerification";
 import LocationExtractor from "@/components/LocationExtractor";
+import WelcomeModal from "@/components/WelcomeModal";
 import { UserCircle, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "@/app/store";
@@ -33,6 +34,7 @@ const Index = () => {
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50">
+      <WelcomeModal />
       {/* Header */}
       <header className="bg-white border-b border-slate-200 shadow-sm">
         <div className="container mx-auto px-6 py-4">
@@ -47,14 +49,6 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Live
-              </Badge>
-              <Button variant="outline" size="sm">
-                <Bell className="h-4 w-4 mr-1" />
-                Alerts ({realtimeUpdates})
-              </Button>
               {username ? (
                   <div className="flex items-center space-x-2 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 cursor-pointer">
                     <UserCircle className="h-6 w-6 text-slate-700" />
