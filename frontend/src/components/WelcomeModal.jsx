@@ -29,12 +29,25 @@ const WelcomeModal = () => {
         <DialogHeader>
           <DialogTitle>Welcome to the Disaster Management App</DialogTitle>
         </DialogHeader>
-        <div className="text-sm text-muted-foreground space-y-2">
+        <div className="text-sm text-muted-foreground space-y-4">
           <p>
             This app helps you monitor disasters and respond faster. Stay
             informed and safe!
           </p>
-          <div className="mt-2 space-y-1">
+
+          <div>
+            <p className="font-medium text-foreground">🔐 Default Credentials:</p>
+            <ul className="list-disc list-inside space-y-1">
+              <li>
+                <strong>Admin</strong> – Username: <code>admin</code>, Password: <code>admin</code>
+              </li>
+              <li>
+                <strong>User</strong> – Username: <code>user</code>, Password: <code>user</code>
+              </li>
+            </ul>
+          </div>
+
+          <div>
             <p className="font-medium text-foreground">🔗 Links:</p>
             <ul className="list-disc list-inside space-y-1">
               <li>
@@ -49,7 +62,7 @@ const WelcomeModal = () => {
               </li>
               <li>
                 <a
-                  href="https://leetcode.com/"
+                  href="https://leetcode.com/u/Abodh5921/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"
@@ -69,7 +82,8 @@ const WelcomeModal = () => {
               </li>
             </ul>
           </div>
-          <div className="mt-2">
+
+          <div>
             <p className="font-medium text-foreground">🛠 Tools & Tech:</p>
             <p>React.js, Node.js, Cursor</p>
           </div>
