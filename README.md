@@ -51,6 +51,14 @@ npm run dev
 cd backend
 npm install
 npm run dev
+# In backend folder create file .env and this variables:
+SUPABASE_URL = 
+SUPABASE_KEY = 
+MAPBOX_KEY = ""
+GEMINI_API_KEY = 
+PORT =
+JWT_SECRET =
+GROQ_API_KEY =
 
 
 🌐 Features
@@ -68,6 +76,16 @@ npm run dev
 
 Developer Tools
 Used Cursor.dev for AI-enhanced pair programming and code generation
+
+During the development of the Disaster Response Coordination Platform project, I actively used Cursor, an AI-powered code editor, to streamline and enhance my coding workflow. Cursor helped me in the following ways:
+
+AI Assistance: I used Cursor's integrated AI features to generate boilerplate code, debug complex logic, and improve code structure, saving significant development time.
+
+Code Suggestions: Leveraged Cursor for real-time suggestions and auto-completions, particularly during backend development with Node.js and frontend components in React.
+
+File Navigation: Utilized its intuitive UI and smart file navigation to manage large codebases efficiently.
+
+
 
 Development is modular with clear separation of concerns between frontend and backend
 
